@@ -12,3 +12,5 @@
 # Запуск API командой
 
 uvicorn src.api.app:app --reload --port 8000
+pytest tests/ -v
+mlflow ui --port 5000
