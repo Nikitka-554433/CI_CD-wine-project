@@ -1,0 +1,42 @@
+stages:
+  - test
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - .venv/
+
+before_script:
+  - python -m venv .venv
+  - source .venv/bin/activate
+  - pip install -r requirements.txt
+
+lint:
+  stage: test
+  script:
+    - source .venv/bin/activate
+    - flake8 src/
+  only:
+    - merge_requests
+
+dvc_check:
+  stage: test
+  script:
+    - source .venv/bin/activate
+    - dvc pull
+  only:
+    - merge_requests
+  variables:
+    AWS_ACCESS_KEY_ID: $MINIO_ACCESS_KEY
+    AWS_SECRET_ACCESS_KEY: $MINIO_SECRET_KEY
+
+api_tests:
+  stage: test
+  script:
+    - source .venv/bin/activate
+    - pytest tests/ -v
+  only:
+    - merge_requests
